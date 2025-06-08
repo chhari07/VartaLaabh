@@ -50,7 +50,7 @@ const Aboutus = () => {
         <div className="w-full lg:w-1/2 mt-6 lg:mt-0">
           <img 
             className="w-full h-auto rounded-xl shadow-lg transform transition duration-500 hover:scale-105" 
-            src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/16/Roadside_Tea_Shop_-_Dock_Eastern_Boundary_Road_-_Kidderpore_-_Kolkata_2016-01-24_9099.JPG/1280px-Roadside_Tea_Shop_-_Dock_Eastern_Boundary_Road_-_Kidderpore_-_Kolkata_2016-01-24_9099.JPG" 
+            src="https://i.pinimg.com/736x/03/32/fd/0332fd6f15c967af56fa6d9e06f66bc6.jpg" 
             alt="Vaarta-Laab" 
           />
         </div>

@@ -33,7 +33,7 @@ const ContactUs = () => {
   };
 
   return (
-    <section className="py-24 bg-white">
+    <section className="py-24 bg-white    ">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="grid lg:grid-cols-2 grid-cols-1">
           {/* Left Image Section */}
@@ -41,11 +41,11 @@ const ContactUs = () => {
             <div className="group w-full h-full">
               <div className="relative h-full">
                 <img
-                  src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/16/Roadside_Tea_Shop_-_Dock_Eastern_Boundary_Road_-_Kidderpore_-_Kolkata_2016-01-24_9099.JPG/1280px-Roadside_Tea_Shop_-_Dock_Eastern_Boundary_Road_-_Kidderpore_-_Kolkata_2016-01-24_9099.JPG"
+                  src="https://i.pinimg.com/736x/b8/0d/45/b80d45641b2e2162cc6559254135d77c.jpg"
                   alt="Contact Us"
                   className="w-full h-full lg:rounded-l-2xl rounded-2xl bg-blend-multiply bg-indigo-700 object-cover"
                 />
-                <h1 className="font-manrope text-white text-4xl font-bold leading-10 absolute top-11 left-11">
+                <h1 className="font-manrope text-black bg-white rounded-2xl   text-4xl font-bold leading-10 absolute top-11 left-11">
                   Contact us
                 </h1>
               </div>

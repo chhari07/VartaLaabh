@@ -1,72 +1,78 @@
-// eslint-disable-next-line no-unused-vars
+/* eslint-disable no-unused-vars */
 import React from "react";
-import { FaRobot, FaComments, FaBell, FaUsersCog } from "react-icons/fa"; // Updated icons for more relevance
+import { FaExchangeAlt, FaLightbulb, FaHandHoldingHeart } from "react-icons/fa";
+
+const items = [
+  {
+    title: "Varta ",
+    icon: <FaExchangeAlt className="w-6 h-6 text-white" />,
+    color: "from-indigo-500 to-purple-600",
+    desc: "Open dialogue through town halls, podcasts, and online forums exposes people to diverse perspectives, encourages democratic thinking, and nurtures cultural understanding.",
+    image: "https://i.pinimg.com/736x/9d/34/04/9d3404a487687eae4d1fa055dc6eb12f.jpg"
+  },
+  {
+    title: "Bodh ",
+    icon: <FaLightbulb className="w-6 h-6 text-white" />,
+    color: "from-yellow-500 to-orange-500",
+    desc: "Meaningful conversations foster empathy, awareness, and informed decision-making. Greater understanding leads to thoughtful policies and a more conscious society.",
+    image: "https://i.pinimg.com/736x/2d/48/9f/2d489fe55b41c641eb36ff3f0ece1dea.jpg"
+  },
+  {
+    title: "Laabh ",
+    icon: <FaHandHoldingHeart className="w-6 h-6 text-white" />,
+    color: "from-green-500 to-teal-500",
+    desc: "When shared understanding is turned into action, it drives social progress, collective well-being, and innovation for a better future.",
+    image: "https://i.pinimg.com/736x/c2/46/d6/c246d64250350abc013baeea695c4c9b.jpg"
+  }
+];
 
 const Howitworks = () => {
+  const clipPathStyle = {
+    clipPath: "polygon(0 0, 100% 8%, 100% 92%, 0% 100%)"
+  };
+
   return (
-    <section className="py-12 bg-white">
-      <div className="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
+    <section className="py-16 bg-white">
+      <div className="px-6 mx-auto max-w-7xl">
         <div className="text-center">
-          <h2 className="text-3xl font-bold text-black sm:text-4xl xl:text-5xl">
-            How Does #वार्ता-लाप Work?
+          <h2 className="text-4xl font-bold text-gray-900 sm:text-5xl">
+            How Does <span className="text-blue-600"># वार्ता-लाप</span> Work?
           </h2>
-          <p className="max-w-2xl mx-auto mt-5 text-base font-normal text-black">
-            Vaarta Laab is your all-in-one intelligent platform to ask questions, join discussions, stay informed, and grow within a vibrant, AI-supported community.
+          <p className="mt-4 max-w-2xl mx-auto text-lg text-gray-600">
+            Vaarta-Laabh is your all-in-one intelligent platform to ask questions, join discussions,
+            stay informed, and grow within a vibrant, AI-powered community.
           </p>
         </div>
 
-        <div className="flex flex-col items-center max-w-md mx-auto mt-8 lg:mt-20 lg:flex-row lg:max-w-none lg:space-x-6">
-          {/* Step 1: AI-Enhanced Q&A */}
-          <div className="relative flex-1 w-full bg-white border border-gray-200 rounded-2xl shadow-lg transition-transform transform hover:scale-105 hover:shadow-xl">
-            <div className="py-8 px-9">
-              <div className="inline-flex items-center justify-center w-12 h-12 text-base font-bold text-white bg-gradient-to-r from-purple-500 to-indigo-600 rounded-full">
-                <FaRobot className="w-6 h-6" />
-              </div>
-              <h3 className="text-lg font-semibold text-black mt-2">AI-Enhanced Q&A</h3>
-              <p className="mt-4 text-lg font-medium text-gray-700">
-                Ask questions and receive precise, AI-suggested responses while contributing your insights to help others in the community.
-              </p>
-            </div>
-          </div>
+        <div className="flex flex-col sm:flex-row justify-center items-stretch gap-8 mt-16">
+          {items.map((item, index) => (
+            <div
+              key={index}
+              className="group relative w-full sm:w-1/3 bg-white rounded-3xl shadow-xl overflow-hidden transform hover:scale-105 transition duration-300"
+            >
+              {/* Angled Image */}
+              <div
+                className="h-64 bg-cover bg-center transition-all duration-300"
+                style={{
+                  ...clipPathStyle,
+                  backgroundImage: `url(${item.image})`
+                }}
+              ></div>
 
-          {/* Step 2: Forums */}
-          <div className="relative flex-1 w-full mt-8 lg:mt-0 bg-white border border-gray-200 rounded-2xl shadow-lg transition-transform transform hover:scale-105 hover:shadow-xl">
-            <div className="py-8 px-9">
-              <div className="inline-flex items-center justify-center w-12 h-12 text-base font-bold text-white bg-gradient-to-r from-orange-500 to-red-600 rounded-full">
-                <FaComments className="w-6 h-6" />
+              {/* Card Content */}
+              <div className="p-6 text-center">
+                <div
+                  className={`flex items-center justify-center w-14 h-14 mx-auto rounded-full bg-gradient-to-r ${item.color} shadow-md`}
+                >
+                  {item.icon}
+                </div>
+                <h3 className="mt-4 text-2xl font-semibold text-gray-900">{item.title}</h3>
+                <p className="mt-3 text-gray-600 text-base leading-relaxed">
+                  {item.desc}
+                </p>
               </div>
-              <h3 className="text-lg font-semibold text-black mt-2">Topic-Based Forums</h3>
-              <p className="mt-4 text-lg font-medium text-gray-700">
-                Dive into engaging, real-time discussions organized by interests and trends. Discover ideas, collaborate, and express your voice.
-              </p>
             </div>
-          </div>
-
-          {/* Step 3: Smart Notifications */}
-          <div className="relative flex-1 w-full mt-8 lg:mt-0 bg-white border border-gray-200 rounded-2xl shadow-lg transition-transform transform hover:scale-105 hover:shadow-xl">
-            <div className="py-8 px-9">
-              <div className="inline-flex items-center justify-center w-12 h-12 text-base font-bold text-white bg-gradient-to-r from-blue-500 to-sky-600 rounded-full">
-                <FaBell className="w-6 h-6" />
-              </div>
-              <h3 className="text-lg font-semibold text-black mt-2">Stay Informed</h3>
-              <p className="mt-4 text-lg font-medium text-gray-700">
-                Get real-time alerts for responses, trending discussions, and content tailored to your preferences via smart AI notifications.
-              </p>
-            </div>
-          </div>
-
-          {/* Step 4: Community & Growth */}
-          <div className="relative flex-1 w-full mt-8 lg:mt-0 bg-white border border-gray-200 rounded-2xl shadow-lg transition-transform transform hover:scale-105 hover:shadow-xl">
-            <div className="py-8 px-9">
-              <div className="inline-flex items-center justify-center w-12 h-12 text-base font-bold text-white bg-gradient-to-r from-green-500 to-emerald-600 rounded-full">
-                <FaUsersCog className="w-6 h-6" />
-              </div>
-              <h3 className="text-lg font-semibold text-black mt-2">Community Recognition</h3>
-              <p className="mt-4 text-lg font-medium text-gray-700">
-                Earn recognition, badges, and grow your presence by helping others and shaping the future of Vaarta Laab.
-              </p>
-            </div>
-          </div>
+          ))}
         </div>
       </div>
     </section>

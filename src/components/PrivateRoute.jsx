@@ -1,13 +1,17 @@
 /* eslint-disable react/prop-types */
-// eslint-disable-next-line no-unused-vars
+/* eslint-disable no-unused-vars */
 import React from "react";
 import { Navigate } from "react-router-dom";
-import { useAuth } from "../Firebase/AuthContext";
+import { useAuth } from "../context/AuthContext"; // ✅ fixed typo
 
 const PrivateRoute = ({ children }) => {
-  const { currentUser } = useAuth();
+  const { user, loading } = useAuth(); // ✅ use the correct hook
 
-  return currentUser ? children : <Navigate to="/login" replace />;
+  if (loading) {
+    return <div>Loading...</div>; // optionally add a spinner
+  }
+
+  return user ? children : <Navigate to="/login" replace />;
 };
 
 export default PrivateRoute;

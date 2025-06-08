@@ -1,90 +1,212 @@
-// eslint-disable-next-line no-unused-vars
+/* eslint-disable no-unused-vars */
 import React, { useState } from "react";
-import { auth } from "../Firebase/Firebase"; // Import Firebase auth
-import { createUserWithEmailAndPassword } from "firebase/auth";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
+import { supabase } from "../lib/supabaseClient";
 import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/solid";
 
-const Signup = () => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+const SignUp = () => {
+  const [formData, setFormData] = useState({
+    fullName: "",
+    username: "",
+    email: "",
+    phone: "",
+    password: "",
+    confirmPassword: "",
+    dob: "",
+    gender: "",
+  });
+
   const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState(null);
+  const [errorMsg, setErrorMsg] = useState("");
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const handleSignup = async (e) => {
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleSignUp = async (e) => {
     e.preventDefault();
-    setError(null);
+    setErrorMsg("");
+    setLoading(true);
+
+    if (formData.password !== formData.confirmPassword) {
+      setErrorMsg("Passwords do not match.");
+      setLoading(false);
+      return;
+    }
 
     try {
-      await createUserWithEmailAndPassword(auth, email, password);
-      alert("Sign Up Successful! 🎉");
-      navigate("/"); // Redirect to Home Page after Sign Up
-    } catch (error) {
-      setError(error.message);
+      const { data, error } = await supabase.auth.signUp({
+        email: formData.email,
+        password: formData.password,
+      });
+
+      if (error) throw error;
+      const userId = data?.user?.id;
+      if (!userId) throw new Error("User ID not found.");
+
+      const { error: insertError } = await supabase.from("profiles").upsert([
+        {
+          id: userId,
+          full_name: formData.fullName,
+          username: formData.username,
+          phone: formData.phone,
+          dob: formData.dob,
+          gender: formData.gender,
+        },
+      ]);
+
+      if (insertError) throw insertError;
+
+      alert("Signup successful!");
+      navigate("/login");
+    } catch (err) {
+      setErrorMsg(err.message || "Signup failed.");
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div 
-      className="flex items-center justify-center min-h-screen bg-gray-100 bg-cover bg-center"
-      style={{
-        backgroundImage:
-          "url('https://wallpapercave.com/uwp/uwp4772497.png')",
-      }}
-    >
-      <div className="bg-white/90 backdrop-blur-sm p-6 rounded-xl shadow-xl w-96">
-        <h2 className="text-2xl font-bold mb-4 text-center text-gray-800">Sign Up</h2>
-
-        {error && <p className="text-red-500 text-sm mb-2">{error}</p>}
-
-        <form onSubmit={handleSignup} className="flex flex-col">
-          <input
-            type="email"
-            placeholder="Email"
-            className="p-2 border border-gray-300 rounded mb-3"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
-
-          <div className="relative">
+    <div className="min-h-screen flex flex-col md:flex-row">
+      {/* Left Side - Sign Up + background image */}
+      <div
+        className="w-full md:w-1/2 flex items-center justify-center p-6 min-h-screen"
+        style={{
+          backgroundImage:
+            "url('https://i.pinimg.com/736x/29/0f/4c/290f4c903dcb7319ac2ad2c967a59f0d.jpg')",
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+        }}
+      >
+        <div className="w-full max-w-md px-6 py-8 sm:px-8 sm:py-10 rounded-xl shadow-2xl bg-white/80 backdrop-blur-md">
+          <h2 className="text-4xl font-bold text-center mb-6">Create Account </h2>
+          {errorMsg && <p className="text-red-500 text-center mb-4">{errorMsg}</p>}
+          <form onSubmit={handleSignUp} className="space-y-4">
             <input
-              type={showPassword ? "text" : "password"}
-              placeholder="Password"
-              className="p-2 border border-gray-300 rounded w-full pr-10"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              type="text"
+              name="fullName"
+              placeholder="Full Name"
+              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              value={formData.fullName}
+              onChange={handleInputChange}
               required
             />
-            <button
-              type="button"
-              className="absolute inset-y-0 right-3 flex items-center"
-              onClick={() => setShowPassword(!showPassword)}
+            <input
+              type="text"
+              name="username"
+              placeholder="Username"
+              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              value={formData.username}
+              onChange={handleInputChange}
+              required
+            />
+            <input
+              type="email"
+              name="email"
+              placeholder="Email"
+              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              value={formData.email}
+              onChange={handleInputChange}
+              required
+            />
+            <input
+              type="tel"
+              name="phone"
+              placeholder="Phone"
+              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              value={formData.phone}
+              onChange={handleInputChange}
+              required
+            />
+
+            <div className="relative">
+              <input
+                type={showPassword ? "text" : "password"}
+                name="password"
+                placeholder="Password"
+                className="w-full px-4 py-2 border rounded-lg pr-10 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                value={formData.password}
+                onChange={handleInputChange}
+                required
+              />
+              <button
+                type="button"
+                className="absolute right-3 top-2.5"
+                onClick={() => setShowPassword(!showPassword)}
+              >
+                {showPassword ? (
+                  <EyeSlashIcon className="w-5 h-5 text-gray-500" />
+                ) : (
+                  <EyeIcon className="w-5 h-5 text-gray-500" />
+                )}
+              </button>
+            </div>
+
+            <input
+              type="password"
+              name="confirmPassword"
+              placeholder="Confirm Password"
+              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              value={formData.confirmPassword}
+              onChange={handleInputChange}
+              required
+            />
+
+            <input
+              type="date"
+              name="dob"
+              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              value={formData.dob}
+              onChange={handleInputChange}
+              required
+            />
+
+            <select
+              name="gender"
+              value={formData.gender}
+              onChange={handleInputChange}
+              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              required
             >
-              {showPassword ? (
-                <EyeSlashIcon className="w-5 h-5 text-gray-500" />
-              ) : (
-                <EyeIcon className="w-5 h-5 text-gray-500" />
-              )}
+              <option value="">Select Gender</option>
+              <option value="Male">Male</option>
+              <option value="Female">Female</option>
+              <option value="Other">Other</option>
+            </select>
+
+            <button
+              type="submit"
+              className="w-full bg-[#0C1B33] text-white py-2 rounded-lg hover:bg-[#11294b] transition"
+              disabled={loading}
+            >
+              {loading ? "Signing up..." : "Sign Up"}
             </button>
-          </div>
+          </form>
 
-          <button
-            type="submit"
-            className="text-white py-2 rounded transition mt-3 bg-[#0C1B33]  "
-          >
-            Sign Up
-          </button>
-        </form>
-
-        <p className="text-sm text-gray-700 mt-3 text-center">
-          Already have an account?{" "}
-          <a href="/login" className="text-red-500 hover:underline">Login</a>
-        </p>
+          <p className="mt-5 text-center text-sm text-gray-700">
+            Already have an account?{" "}
+            <Link to="/login" className="text-blue-600 hover:underline">
+              Login
+            </Link>
+          </p>
+        </div>
       </div>
+
+      {/* Right Side Image (desktop only) */}
+      <div
+        className="hidden md:block md:w-1/2 min-h-screen"
+        style={{
+          backgroundImage:
+            "url('https://i.pinimg.com/736x/2e/4b/74/2e4b74e751ce8a5a354aaeb91691d887.jpg')",
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+        }}
+      />
     </div>
   );
 };
 
-export default Signup;
+export default SignUp;

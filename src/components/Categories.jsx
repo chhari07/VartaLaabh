@@ -9,28 +9,26 @@ const GridContainer = styled.div`
   display: flex;
   gap: 20px;
   overflow-x: auto;
-  scrollbar-color: #888 #000;
+  scroll-snap-type: x mandatory;
+  scroll-padding: 20px;
 
+  /* Hide scrollbar for WebKit-based browsers (Chrome, Safari, Opera) */
   &::-webkit-scrollbar {
-    height: 8px;
+    display: none;
   }
 
-  &::-webkit-scrollbar-thumb {
-    background: linear-gradient(to right, #f97316, #dc2626);
-    border-radius: 10px;
-  }
+  /* Hide scrollbar for Firefox */
+  scrollbar-width: none;
 
-  @media (min-width: 1024px) {
-    justify-content: center;
-    overflow-x: hidden;
-    flex-wrap: wrap;
-  }
+  /* Hide scrollbar for Internet Explorer and Edge */
+  -ms-overflow-style: none;
 `;
 
 const Card = styled.div`
+  scroll-snap-align: start;
   position: relative;
-  min-width: 280px;
-  height: 420px;
+  min-width: 580px;
+  height: 320px;
   background-size: cover;
   background-position: center;
   border-radius: 15px;
@@ -46,9 +44,8 @@ const Card = styled.div`
     box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.2);
   }
 
-  @media (min-width: 1024px) {
-    flex: 1 1 300px;
-    max-width: 300px;
+  @media (max-width: 480px) {
+    min-width: 300px;
   }
 `;
 
@@ -73,7 +70,7 @@ const CardContent = styled.div`
 `;
 
 const CategoryTag = styled.a`
-   background: #0C1B33;
+  background: #0c1b33;
   color: white;
   padding: 6px 14px;
   font-size: 12px;
@@ -83,9 +80,8 @@ const CategoryTag = styled.a`
   align-self: flex-start;
   text-decoration: none;
 
-  /* Apply #0C1B33 as the background color on hover */
   &:hover {
-    background: #0C1B33;
+    background: #0c1b33;
     color: white;
   }
 `;
@@ -103,27 +99,32 @@ const NewsTitle = styled.a`
 
 const accordionData = [
   {
-    image: "https://media.assettype.com/nationalherald%2F2019-10%2F2a4ae0b4-79c7-443b-8106-f1a278690208%2Fpeeing_human_tv_panelits_hate.jpg?rect=131%2C0%2C924%2C520&auto=format%2Ccompress&fmt=webp&w=768&dpr=1.0",
+    image:
+      "https://i.pinimg.com/736x/85/ed/76/85ed76c39424fe5d6a210bac1747e734.jpg",
     title: "Debate & Discussions",
     description: "Engage in structured debates and group dialogues.",
   },
   {
-    image: "https://as1.ftcdn.net/jpg/13/44/87/82/1000_F_1344878259_7OlGVCcodFoca1okoOuzzHQ8okVlz4Hp.jpg",
+    image:
+      "https://i.pinimg.com/736x/6e/5e/68/6e5e6802468b94b1bdbe31306d9e0402.jpg",
     title: "Career Talks",
     description: "Learn from alumni, professionals & recruiters.",
   },
   {
-    image: "https://static.vecteezy.com/ti/vecteur-libre/p3/6026081-business-teamwork-reunion-discussion-a-la-table-ronde-illustrationle-noir-et-blanc-vectoriel.jpg",
+    image:
+      "https://i.pinimg.com/736x/60/b4/e7/60b4e744da7ab38de99228eba9051ec2.jpg",
     title: "Panel & Open Forums",
     description: "Participate in expert panels & open conversations.",
   },
   {
-    image: "https://assets-global.website-files.com/62ba01ba5ddce9536b927dbb/6530256902ea7dd3938fc4be_5286169b-2854-4423-9b88-d2daea937b24.webp",
+    image:
+      "https://i.pinimg.com/736x/bd/a0/e7/bda0e7a17ffbe41b0e4dddcec7c258b1.jpg",
     title: "Fun & Interactive",
     description: "Quizzes, roleplays, and creative speaking events.",
   },
   {
-    image: "https://www.pngkey.com/png/full/835-8350886_political-awareness.png",
+    image:
+      "https://i.pinimg.com/736x/28/c6/fe/28c6fe63865893320996be14eafc3a49.jpg",
     title: "Social & Political Awareness",
     description: "Discussions on current issues & social topics.",
   },

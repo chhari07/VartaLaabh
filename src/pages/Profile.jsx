@@ -1,197 +1,225 @@
-/* eslint-disable no-undef */
-// eslint-disable-next-line no-unused-vars
-import React, { useState, useEffect } from "react";
-import { auth } from "../Firebase/Firebase";
-import { Link } from "react-router-dom";
+/* eslint-disable no-unused-vars */
+import React, { useState, useEffect } from 'react';
+import { supabase } from '../lib/supabaseClient';
 
 const Profile = () => {
   const [user, setUser] = useState(null);
-  const [displayName, setDisplayName] = useState("");
-  const [photoURL, setPhotoURL] = useState("");
-  const [previewURL, setPreviewURL] = useState(""); // For previewing uploaded image
+  const [displayName, setDisplayName] = useState('');
+  const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
+  const [dob, setDob] = useState('');
+  const [gender, setGender] = useState('');
+  const [bio, setBio] = useState('');
   const [loading, setLoading] = useState(false);
-  const [successMessage, setSuccessMessage] = useState("");
-  const [activeTab, setActiveTab] = useState("view");
-  const [selectedFile, setSelectedFile] = useState(null);
+  const [success, setSuccess] = useState('');
+  const [showSettings, setShowSettings] = useState(false);
+  const [activeTab, setActiveTab] = useState('blogs');
+
+  // New state to toggle detail view
+  const [showDetails, setShowDetails] = useState(false);
 
   useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged((currentUser) => {
-      if (currentUser) {
-        setUser(currentUser);
-        fetchUserProfile(currentUser.email);
+    const getUser = async () => {
+      const {
+        data: { user },
+        error,
+      } = await supabase.auth.getUser();
+
+      if (error) {
+        console.error('Error getting user:', error);
+        return;
       }
-    });
-    return () => unsubscribe();
+
+      if (user) {
+        setUser(user);
+        setEmail(user.email || '');
+        setDisplayName(user.user_metadata?.full_name || '');
+        setPhone(user.user_metadata?.phone || '');
+        setDob(user.user_metadata?.dob || '');
+        setGender(user.user_metadata?.gender || '');
+        setBio(user.user_metadata?.bio || '');
+      }
+    };
+
+    getUser();
   }, []);
 
-  const fetchUserProfile = async (email) => {
-    try {
-      const response = await fetch(`http://localhost:5174/api/users/${email}`);
-      if (response.ok) {
-        const data = await response.json();
-        setDisplayName(data.displayName);
-        setPhotoURL(data.photoURL);
-      }
-    } catch (error) {
-      console.error("Error fetching profile:", error);
-    }
-  };
-
-  // Handle Image File Selection
-  const handleFileChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      const fileURL = URL.createObjectURL(file);
-      setPreviewURL(fileURL); // Temporary preview
-      setSelectedFile(file);
-    }
-  };
-
-  // Cleanup URL to free memory
-  useEffect(() => {
-    return () => {
-      if (previewURL) URL.revokeObjectURL(previewURL);
-    };
-  }, [previewURL]);
-
-  const handleUpdateProfile = async () => {
+  const handleUpdate = async () => {
     setLoading(true);
+    setSuccess('');
+
     try {
-      let imageUrl = photoURL; // Default to existing photo
+      const updates = {
+        data: {
+          full_name: displayName,
+          phone,
+          dob,
+          gender,
+          bio,
+        },
+      };
 
-      // Upload new image if selected
-      if (selectedFile) {
-        const formData = new FormData();
-        formData.append("file", selectedFile);
+      const { error } = await supabase.auth.updateUser(updates);
+      if (error) throw error;
 
-        const uploadResponse = await fetch(`${process.env.REACT_APP_API_URL}/api/upload`, {
-          method: "POST",
-          body: formData,
-        });
-
-        const uploadData = await uploadResponse.json();
-        imageUrl = uploadData.imageUrl; // Get uploaded image URL
-      }
-
-      // Update user profile in the database
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/users/${user.email}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ displayName, photoURL: imageUrl }),
-      });
-
-      if (response.ok) {
-        setSuccessMessage("Profile updated successfully!");
-        setPhotoURL(imageUrl);
-        setPreviewURL(""); // Clear preview after update
-      } else {
-        setSuccessMessage("Failed to update profile.");
-      }
+      setSuccess('Profile updated!');
+      setShowSettings(false);
+      setShowDetails(false); // optionally hide details on update
     } catch (error) {
-      console.error("Error updating profile:", error);
-      setSuccessMessage("Error updating profile.");
-    } finally {
-      setLoading(false);
+      console.error('Profile update error:', error);
+    }
+
+    setLoading(false);
+  };
+
+  if (!user) return <div>Loading...</div>;
+
+  const renderTabContent = () => {
+    switch (activeTab) {
+      case 'blogs':
+        return <div>Your Blogs will appear here.</div>;
+      case 'qa':
+        return <div>Your Q&A content will appear here.</div>;
+      case 'polls':
+        return <div>Your Polls will appear here.</div>;
+      case 'whiteboard':
+        return <div>Your Whiteboard content will appear here.</div>;
+      default:
+        return null;
     }
   };
 
   return (
-    <div className="p-2  mt-24  "
-    
-    >
-      <div className="max-w-md mx-auto p-2 mt-4 bg-white/80 rounded-lg shadow-md">
-        <h1 className="text-2xl font-semibold text-center text-gray-700 mb-6">Profile</h1>
+    <div className="p-8 max-w-4xl mx-auto mt-24     bg-white rounded-lg shadow-lg">
+      <div className="flex items-center justify-between mb-6">
+        <h2 className="text-3xl font-bold">My Profile</h2>
+        <button
+          className="bg-[#0C1B33]    text-white px-4 py-2 rounded-3xl    hover:bg-gray-700"
+          onClick={() => setShowSettings((prev) => !prev)}
+        >
+          {showSettings ? 'Close Settings' : 'Edit Profile'}
+        </button>
+      </div>
 
-        <div className="text-center mb-4">
-          <Link to="/dashboard">
-            <button className="p-2 bg-blue-500 text-white rounded-md hover:bg-blue-600">
-              Go to Dashboard
-            </button>
-          </Link>
-        </div>
+      {success && <p className="text-green-600 mb-4">{success}</p>}
 
-        {user ? (
-          <div className="space-y-6">
-            <div className="flex justify-center mb-6">
-              <button
-                onClick={() => setActiveTab("view")}
-                className={`px-6 py-2 text-lg font-medium ${
-                  activeTab === "view" ? "bg-blue-500 text-white" : "bg-gray-200 text-gray-700"
-                } rounded-l-md hover:bg-blue-600 hover:text-white`}
-              >
-                View Profile
-              </button>
-              <button
-                onClick={() => setActiveTab("edit")}
-                className={`px-6 py-2 text-lg font-medium ${
-                  activeTab === "edit" ? "bg-blue-500 text-white" : "bg-gray-200 text-gray-700"
-                } rounded-r-md hover:bg-blue-600 hover:text-white`}
-              >
-                Edit Profile
-              </button>
+      {!showSettings ? (
+        <div className="space-y-4">
+          <div className="flex items-center space-x-4">
+            <div className="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center text-2xl font-bold text-gray-700">
+              {displayName ? displayName.charAt(0).toUpperCase() : 'U'}
             </div>
-
-            {activeTab === "view" ? (
-              <div className="flex flex-col items-center">
-                <img
-                  className="w-24 h-24 rounded-full mb-4"
-                  src={photoURL || "https://via.placeholder.com/150"}
-                  alt="Profile"
-                />
-                <h2 className="text-xl font-semibold text-gray-800">{displayName || "No Name"}</h2>
-              </div>
-            ) : (
-              <div className="bg-white p-6 rounded-lg shadow-md">
-                <div className="space-y-4">
-                  <div>
-                    <label htmlFor="displayName" className="block text-gray-700 font-medium">
-                      Display Name
-                    </label>
-                    <input
-                      id="displayName"
-                      type="text"
-                      value={displayName}
-                      onChange={(e) => setDisplayName(e.target.value)}
-                      placeholder="Enter new display name"
-                      className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
-                    />
-                  </div>
-
-                  <div>
-                    <label htmlFor="photoUpload" className="block text-gray-700 font-medium">
-                      Upload Profile Photo
-                    </label>
-                    <input
-                      id="photoUpload"
-                      type="file"
-                      accept="image/*"
-                      onChange={handleFileChange}
-                      className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
-                    />
-                  </div>
-
-                  {previewURL && (
-                    <img src={previewURL} alt="Profile Preview" className="w-24 h-24 rounded-full mx-auto mt-4" />
-                  )}
-
-                  <button
-                    onClick={handleUpdateProfile}
-                    disabled={loading}
-                    className="w-full p-3 bg-blue-500 text-white font-semibold rounded-md hover:bg-blue-600 transition duration-200 disabled:bg-gray-300 disabled:cursor-not-allowed"
-                  >
-                    {loading ? "Updating..." : "Update Profile"}
-                  </button>
-                </div>
-
-                {successMessage && (
-                  <p className="mt-4 text-center text-sm font-medium text-green-600">{successMessage}</p>
-                )}
-              </div>
-            )}
+            <div>
+              <p className="text-xl font-semibold">{displayName || 'Not set'}</p>
+              <p className="text-gray-600">{email}</p>
+            </div>
           </div>
-        ) : (
-          <p>Loading...</p>
-        )}
+          <div>
+            <p><strong>Bio:</strong> {bio || 'Not set'}</p>
+          </div>
+
+          {/* Detail button */}
+          <button
+            onClick={() => setShowDetails((prev) => !prev)}
+            className="mt-2 px-3 py-1 text-sm   text-white  bg-[#0C1B33]  rounded-3xl   "
+          >
+            {showDetails ? 'Hide Details' : 'Show Details'}
+          </button>
+
+          {/* Detailed info shown only when toggled */}
+          {showDetails && (
+            <div className="mt-4 space-y-2 text-gray-700">
+              <p><strong>Phone:</strong> {phone || 'Not set'}</p>
+              <p><strong>Date of Birth:</strong> {dob || 'Not set'}</p>
+              <p><strong>Gender:</strong> {gender || 'Not set'}</p>
+            </div>
+          )}
+        </div>
+      ) : (
+        <div className="space-y-4">
+          {/* The edit form stays the same */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Display Name</label>
+            <input
+              type="text"
+              className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
+              value={displayName}
+              onChange={(e) => setDisplayName(e.target.value)}
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Phone</label>
+            <input
+              type="tel"
+              className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Date of Birth</label>
+            <input
+              type="date"
+              className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
+              value={dob}
+              onChange={(e) => setDob(e.target.value)}
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Gender</label>
+            <select
+              className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
+              value={gender}
+              onChange={(e) => setGender(e.target.value)}
+            >
+              <option value="">Select gender</option>
+              <option value="male">Male</option>
+              <option value="female">Female</option>
+              <option value="other">Other</option>
+              <option value="prefer_not_say">Prefer not to say</option>
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Bio</label>
+            <textarea
+              className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
+              value={bio}
+              onChange={(e) => setBio(e.target.value)}
+            />
+          </div>
+
+          <button
+            onClick={handleUpdate}
+            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+            disabled={loading}
+          >
+            {loading ? 'Updating...' : 'Save Changes'}
+          </button>
+        </div>
+      )}
+
+      {/* Tabs */}
+      <div className="mt-8">
+        <div className="flex border-b border-gray-200">
+          {['blogs', 'qa', 'polls', 'whiteboard'].map((tab) => (
+            <button
+              key={tab}
+              className={`px-4 py-2 -mb-px font-semibold ${
+                activeTab === tab
+                  ? 'border-b-2 border-[#0C1B33 text-[#0C1B33]'
+                  : 'text-gray-600'
+              }`}
+              onClick={() => setActiveTab(tab)}
+            >
+              {tab.charAt(0).toUpperCase() + tab.slice(1)}
+            </button>
+          ))}
+        </div>
+        <div className="mt-4">{renderTabContent()}</div>
       </div>
     </div>
   );
